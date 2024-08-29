@@ -8,6 +8,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 // import connectDB from "./config/db";
 const ErrorMiddleware_1 = require("./middlewares/ErrorMiddleware");
+const HelloRoutes_1 = __importDefault(require("./routes/HelloRoutes"));
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 // connectDB();
@@ -22,6 +23,7 @@ app.get("/api", (req, res) => {
 });
 // User Route
 // app.use("/api/auth", AuthRoutes);
+app.use("/api/hello", HelloRoutes_1.default);
 // Middleware
 app.use(ErrorMiddleware_1.notFound);
 app.use(ErrorMiddleware_1.errorHandler);
