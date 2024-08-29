@@ -4,4 +4,4 @@ node_modules/
 # Environment variables
 .env
 .vscode
-
+.env.development.local
