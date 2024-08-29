@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProjectsUsingApiKey = exports.createProjectUsingApiKey = exports.createApiKey = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
+const utils_1 = require("../utils/utils");
 const { v4: uuidv4 } = require("uuid");
 const postgres_1 = require("@vercel/postgres");
 // @Desc Create an API Key
@@ -23,14 +24,21 @@ exports.createApiKey = (0, express_async_handler_1.default)((req, res) => __awai
     try {
         const apiKey = req.body.apiKey;
         if (!apiKey) {
-            res.status(404);
-            throw new Error("API Key not entered");
+            res.status(404).json({ error: "API Key not entered" });
+            return;
         }
-        const result = yield (0, postgres_1.sql) `INSERT INTO api_keys(api_key) VALUES(${apiKey}) RETURNING * `;
-        res.status(201).json({
-            success: true,
-            data: result.rows[0],
-        });
+        const keyResult = yield (0, utils_1.checkApiKey)(apiKey);
+        if (!keyResult.id) {
+            const result = yield (0, postgres_1.sql) `INSERT INTO api_keys(api_key) VALUES(${apiKey}) RETURNING * `;
+            res.status(201).json({
+                success: true,
+                data: result.rows[0],
+            });
+        }
+        else {
+            res.status(403).json({ error: "Provided API key already exists" });
+            return;
+        }
     }
     catch (error) {
         console.log(error);
@@ -44,17 +52,17 @@ exports.createProjectUsingApiKey = (0, express_async_handler_1.default)((req, re
     try {
         const apiKey = req.body.apiKey;
         if (!apiKey) {
-            res.status(404);
-            throw new Error("API Key not entered");
+            res.status(404).json({ error: "API Key not entered" });
+            return;
         }
-        const result = yield (0, postgres_1.sql) `SELECT * FROM api_keys WHERE api_key = ${apiKey}`;
-        if (result.rowCount === 0) {
+        const result = yield (0, utils_1.checkApiKey)(apiKey);
+        if (!result.id) {
             res.status(400).json({ error: "API Key not found" });
             return;
         }
         const uuid = uuidv4();
         let insertResult;
-        if (!result.rows[0].project_id) {
+        if (!result.project_id) {
             insertResult = yield (0, postgres_1.sql) `
         UPDATE api_keys SET project_id = ${uuid} WHERE api_key = ${apiKey} RETURNING *`;
         }
@@ -79,18 +87,20 @@ exports.createProjectUsingApiKey = (0, express_async_handler_1.default)((req, re
 exports.getProjectsUsingApiKey = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const apiKey = req.params.apiKey;
-        if (!apiKey) {
-            res.status(404);
-            throw new Error("API Key not entered");
+        if (apiKey === ":apiKey") {
+            res.status(404).json({ error: "API Key not entered" });
+            return;
         }
-        const result = yield (0, postgres_1.sql) `SELECT project_id FROM api_keys WHERE api_key = ${apiKey}`;
-        if (result.rowCount === 0) {
+        const keyResult = yield (0, utils_1.checkApiKey)(apiKey);
+        if (!keyResult.id) {
             res.status(400).json({ error: "API Key not found" });
             return;
         }
+        const result = yield (0, postgres_1.sql) `SELECT project_id FROM api_keys WHERE api_key = ${apiKey}`;
         const projects = [];
         result.rows.map((project) => {
-            projects.push(project.project_id);
+            var _a;
+            projects.push((_a = project.project_id) === null || _a === void 0 ? void 0 : _a.toString());
         });
         res.status(201).json({
             success: true,

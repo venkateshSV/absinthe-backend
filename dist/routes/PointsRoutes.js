@@ -4,8 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const HelloController_1 = require("../controllers/HelloController");
+const PointsController_1 = require("../controllers/PointsController");
 const router = express_1.default.Router();
-router.route("/").get(HelloController_1.sayHello);
+router.route("/distribute").post(PointsController_1.distributePoints);
+router
+    .route("/getPointsData/:apiKey/:projectId")
+    .get(PointsController_1.getPointsDataUsingProjectId);
 exports.default = router;
-//# sourceMappingURL=HelloRoutes.js.map
+//# sourceMappingURL=PointsRoutes.js.map

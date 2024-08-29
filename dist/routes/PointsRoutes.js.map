@@ -1,0 +1,1 @@
+{"version":3,"file":"PointsRoutes.js","sourceRoot":"","sources":["../../src/routes/PointsRoutes.ts"],"names":[],"mappings":";;;;;AAAA,sDAA8B;AAC9B,sEAGyC;AAEzC,MAAM,MAAM,GAAG,iBAAO,CAAC,MAAM,EAAE,CAAC;AAEhC,MAAM,CAAC,KAAK,CAAC,aAAa,CAAC,CAAC,IAAI,CAAC,mCAAgB,CAAC,CAAC;AACnD,MAAM;KACH,KAAK,CAAC,mCAAmC,CAAC;KAC1C,GAAG,CAAC,8CAA2B,CAAC,CAAC;AAEpC,kBAAe,MAAM,CAAC"}

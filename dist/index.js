@@ -8,8 +8,8 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 // import { connectDB } from "./config/db";
 const ErrorMiddleware_1 = require("./middlewares/ErrorMiddleware");
-const HelloRoutes_1 = __importDefault(require("./routes/HelloRoutes"));
 const ApiKeyRoutes_1 = __importDefault(require("./routes/ApiKeyRoutes"));
+const PointsRoutes_1 = __importDefault(require("./routes/PointsRoutes"));
 const app = (0, express_1.default)();
 dotenv_1.default.config();
 // connectDB();
@@ -23,8 +23,8 @@ app.get("/api", (req, res) => {
     res.status(201).json({ message: "Welcome to Absinthe Backend" });
 });
 // User Route
-app.use("/api/hello", HelloRoutes_1.default);
 app.use("/api/api-key", ApiKeyRoutes_1.default);
+app.use("/api/points", PointsRoutes_1.default);
 // Middleware
 app.use(ErrorMiddleware_1.notFound);
 app.use(ErrorMiddleware_1.errorHandler);
