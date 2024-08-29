@@ -1,7 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-// import connectDB from "./config/db";
+import connectDB from "./config/db";
 import { notFound, errorHandler } from "./middlewares/ErrorMiddleware";
 import AuthRoutes from "./routes/AuthRoutes";
 import HelloRoutes from "./routes/HelloRoutes";
@@ -10,7 +10,7 @@ const app: Application = express();
 
 dotenv.config();
 
-// connectDB();
+connectDB();
 
 app.use(express.json());
 

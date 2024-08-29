@@ -19,3 +19,19 @@
 // };
 
 // export default connectDB;
+
+const { Pool } = require("pg");
+
+const connectDB = async () => {
+  const pool = new Pool({
+    connectionString: process.env.POSTGRES_URL,
+  });
+  pool.connect((err: any) => {
+    if (err) {
+      throw new Error("Email connecting DB");
+    }
+    console.log("Postgres Connected Successfully!");
+  });
+};
+
+export default connectDB;
