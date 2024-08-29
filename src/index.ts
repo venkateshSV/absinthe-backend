@@ -3,8 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 // import { connectDB } from "./config/db";
 import { notFound, errorHandler } from "./middlewares/ErrorMiddleware";
-import HelloRoutes from "./routes/HelloRoutes";
 import ApiKeyRoutes from "./routes/ApiKeyRoutes";
+import PointsRoutes from "./routes/PointsRoutes";
 
 const app: Application = express();
 
@@ -27,8 +27,8 @@ app.get("/api", (req: Request, res: Response) => {
 });
 
 // User Route
-app.use("/api/hello", HelloRoutes);
 app.use("/api/api-key", ApiKeyRoutes);
+app.use("/api/points", PointsRoutes);
 
 // Middleware
 app.use(notFound);

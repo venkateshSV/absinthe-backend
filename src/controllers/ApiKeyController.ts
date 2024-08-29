@@ -1,8 +1,10 @@
 import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
+import { checkApiKey } from "../utils/utils";
 const { v4: uuidv4 } = require("uuid");
 
 import { sql } from "@vercel/postgres";
+import { checkApiKeyProjectIdResponse } from "types";
 
 // @Desc Create an API Key
 // @Route /api/api-key/create
@@ -12,17 +14,22 @@ export const createApiKey = asyncHandler(
     try {
       const apiKey = req.body.apiKey;
       if (!apiKey) {
-        res.status(404);
-        throw new Error("API Key not entered");
+        res.status(404).json({ error: "API Key not entered" });
+        return;
       }
+      const keyResult: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
+      if (!keyResult.id) {
+        const result =
+          await sql`INSERT INTO api_keys(api_key) VALUES(${apiKey}) RETURNING * `;
 
-      const result =
-        await sql`INSERT INTO api_keys(api_key) VALUES(${apiKey}) RETURNING * `;
-
-      res.status(201).json({
-        success: true,
-        data: result.rows[0],
-      });
+        res.status(201).json({
+          success: true,
+          data: result.rows[0],
+        });
+      } else {
+        res.status(403).json({ error: "Provided API key already exists" });
+        return;
+      }
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: error });
@@ -38,19 +45,17 @@ export const createProjectUsingApiKey = asyncHandler(
     try {
       const apiKey = req.body.apiKey;
       if (!apiKey) {
-        res.status(404);
-        throw new Error("API Key not entered");
+        res.status(404).json({ error: "API Key not entered" });
+        return;
       }
-      const result =
-        await sql`SELECT * FROM api_keys WHERE api_key = ${apiKey}`;
-
-      if (result.rowCount === 0) {
+      const result: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
+      if (!result.id) {
         res.status(400).json({ error: "API Key not found" });
         return;
       }
       const uuid = uuidv4();
       let insertResult;
-      if (!result.rows[0].project_id) {
+      if (!result.project_id) {
         insertResult = await sql`
         UPDATE api_keys SET project_id = ${uuid} WHERE api_key = ${apiKey} RETURNING *`;
       } else {
@@ -76,20 +81,21 @@ export const getProjectsUsingApiKey = asyncHandler(
   async (req: Request, res: Response) => {
     try {
       const apiKey = req.params.apiKey;
-      if (!apiKey) {
-        res.status(404);
-        throw new Error("API Key not entered");
+      if (apiKey === ":apiKey") {
+        res.status(404).json({ error: "API Key not entered" });
+        return;
+      }
+      const keyResult: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
+      if (!keyResult.id) {
+        res.status(400).json({ error: "API Key not found" });
+        return;
       }
       const result =
         await sql`SELECT project_id FROM api_keys WHERE api_key = ${apiKey}`;
 
-      if (result.rowCount === 0) {
-        res.status(400).json({ error: "API Key not found" });
-        return;
-      }
-      const projects: any = [];
+      const projects: String[] = [];
       result.rows.map((project) => {
-        projects.push(project.project_id);
+        projects.push(project.project_id?.toString());
       });
       res.status(201).json({
         success: true,
