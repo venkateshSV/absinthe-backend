@@ -121,15 +121,11 @@ export const getPointsDataUsingWalletAddress = asyncHandler(
       }
       const result =
         await sql`SELECT * FROM pointsdata WHERE project_id = ${projectId} AND wallet_address = ${walletAddress}`;
-      const pointsResult = await sql`
-        SELECT SUM(points) AS total_points
-        FROM pointsdata
-        WHERE project_id = ${projectId} AND wallet_address = ${walletAddress}
-      `;
 
-      const totalPoints = pointsResult.rows[0].total_points || 0;
+      let totalPoints: any = 0;
       const projects: pointsdataResponse[] = [];
       result.rows.map((project: pointsdataResponse) => {
+        totalPoints = totalPoints + Number(project.points);
         projects.push(project);
       });
       res.status(201).json({
@@ -178,15 +174,11 @@ export const getPointsDataUsingWalletAddressEventName = asyncHandler(
       }
       const result =
         await sql`SELECT * FROM pointsdata WHERE project_id = ${projectId} AND wallet_address = ${walletAddress} AND event_name = ${eventName}`;
-      const pointsResult = await sql`
-        SELECT SUM(points) AS total_points
-        FROM pointsdata
-        WHERE project_id = ${projectId} AND wallet_address = ${walletAddress} AND event_name = ${eventName}
-      `;
 
-      const totalPoints = pointsResult.rows[0].total_points || 0;
+      let totalPoints: any = 0;
       const projects: pointsdataResponse[] = [];
       result.rows.map((project: pointsdataResponse) => {
+        totalPoints = totalPoints + Number(project.points);
         projects.push(project);
       });
       res.status(201).json({

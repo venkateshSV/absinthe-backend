@@ -115,14 +115,10 @@ exports.getPointsDataUsingWalletAddress = (0, express_async_handler_1.default)((
             return;
         }
         const result = yield (0, postgres_1.sql) `SELECT * FROM pointsdata WHERE project_id = ${projectId} AND wallet_address = ${walletAddress}`;
-        const pointsResult = yield (0, postgres_1.sql) `
-        SELECT SUM(points) AS total_points
-        FROM pointsdata
-        WHERE project_id = ${projectId} AND wallet_address = ${walletAddress}
-      `;
-        const totalPoints = pointsResult.rows[0].total_points || 0;
+        let totalPoints = 0;
         const projects = [];
         result.rows.map((project) => {
+            totalPoints = totalPoints + Number(project.points);
             projects.push(project);
         });
         res.status(201).json({
@@ -167,14 +163,10 @@ exports.getPointsDataUsingWalletAddressEventName = (0, express_async_handler_1.d
             return;
         }
         const result = yield (0, postgres_1.sql) `SELECT * FROM pointsdata WHERE project_id = ${projectId} AND wallet_address = ${walletAddress} AND event_name = ${eventName}`;
-        const pointsResult = yield (0, postgres_1.sql) `
-        SELECT SUM(points) AS total_points
-        FROM pointsdata
-        WHERE project_id = ${projectId} AND wallet_address = ${walletAddress} AND event_name = ${eventName}
-      `;
-        const totalPoints = pointsResult.rows[0].total_points || 0;
+        let totalPoints = 0;
         const projects = [];
         result.rows.map((project) => {
+            totalPoints = totalPoints + Number(project.points);
             projects.push(project);
         });
         res.status(201).json({
