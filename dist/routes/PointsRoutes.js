@@ -8,7 +8,13 @@ const PointsController_1 = require("../controllers/PointsController");
 const router = express_1.default.Router();
 router.route("/distribute").post(PointsController_1.distributePoints);
 router
-    .route("/getPointsData/:apiKey/:projectId")
+    .route("/get-points-data/:apiKey/:projectId")
     .get(PointsController_1.getPointsDataUsingProjectId);
+router
+    .route("/get-points-data/:apiKey/:projectId/:walletAddress")
+    .get(PointsController_1.getPointsDataUsingWalletAddress);
+router
+    .route("/get-points-data/:apiKey/:projectId/:walletAddress/:eventName")
+    .get(PointsController_1.getPointsDataUsingWalletAddressEventName);
 exports.default = router;
 //# sourceMappingURL=PointsRoutes.js.map

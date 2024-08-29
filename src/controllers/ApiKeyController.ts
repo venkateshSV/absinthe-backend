@@ -12,24 +12,14 @@ import { checkApiKeyProjectIdResponse } from "types";
 export const createApiKey = asyncHandler(
   async (req: Request, res: Response) => {
     try {
-      const apiKey = req.body.apiKey;
-      if (!apiKey) {
-        res.status(404).json({ error: "API Key not entered" });
-        return;
-      }
-      const keyResult: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
-      if (!keyResult.id) {
-        const result =
-          await sql`INSERT INTO api_keys(api_key) VALUES(${apiKey}) RETURNING * `;
+      const apiKey = uuidv4();
+      const result =
+        await sql`INSERT INTO api_keys(api_key) VALUES(${apiKey}) RETURNING * `;
 
-        res.status(201).json({
-          success: true,
-          data: result.rows[0],
-        });
-      } else {
-        res.status(403).json({ error: "Provided API key already exists" });
-        return;
-      }
+      res.status(201).json({
+        success: true,
+        data: result.rows[0],
+      });
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: error });
@@ -45,12 +35,12 @@ export const createProjectUsingApiKey = asyncHandler(
     try {
       const apiKey = req.body.apiKey;
       if (!apiKey) {
-        res.status(404).json({ error: "API Key not entered" });
+        res.status(400).json({ error: "API Key not entered" });
         return;
       }
       const result: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
       if (!result.id) {
-        res.status(400).json({ error: "API Key not found" });
+        res.status(404).json({ error: "API Key not found" });
         return;
       }
       const uuid = uuidv4();
@@ -82,12 +72,12 @@ export const getProjectsUsingApiKey = asyncHandler(
     try {
       const apiKey = req.params.apiKey;
       if (apiKey === ":apiKey") {
-        res.status(404).json({ error: "API Key not entered" });
+        res.status(400).json({ error: "API Key not entered" });
         return;
       }
       const keyResult: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
       if (!keyResult.id) {
-        res.status(400).json({ error: "API Key not found" });
+        res.status(404).json({ error: "API Key not found" });
         return;
       }
       const result =
