@@ -1,16 +1,16 @@
 import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import connectDB from "./config/db";
+// import { connectDB } from "./config/db";
 import { notFound, errorHandler } from "./middlewares/ErrorMiddleware";
-import AuthRoutes from "./routes/AuthRoutes";
 import HelloRoutes from "./routes/HelloRoutes";
+import ApiKeyRoutes from "./routes/ApiKeyRoutes";
 
 const app: Application = express();
 
 dotenv.config();
 
-connectDB();
+// connectDB();
 
 app.use(express.json());
 
@@ -27,8 +27,8 @@ app.get("/api", (req: Request, res: Response) => {
 });
 
 // User Route
-// app.use("/api/auth", AuthRoutes);
 app.use("/api/hello", HelloRoutes);
+app.use("/api/api-key", ApiKeyRoutes);
 
 // Middleware
 app.use(notFound);

@@ -6,12 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
-const db_1 = __importDefault(require("./config/db"));
+// import { connectDB } from "./config/db";
 const ErrorMiddleware_1 = require("./middlewares/ErrorMiddleware");
 const HelloRoutes_1 = __importDefault(require("./routes/HelloRoutes"));
+const ApiKeyRoutes_1 = __importDefault(require("./routes/ApiKeyRoutes"));
 const app = (0, express_1.default)();
 dotenv_1.default.config();
-(0, db_1.default)();
+// connectDB();
 app.use(express_1.default.json());
 // Enable CORS for all routes
 app.use((0, cors_1.default)({
@@ -22,8 +23,8 @@ app.get("/api", (req, res) => {
     res.status(201).json({ message: "Welcome to Absinthe Backend" });
 });
 // User Route
-// app.use("/api/auth", AuthRoutes);
 app.use("/api/hello", HelloRoutes_1.default);
+app.use("/api/api-key", ApiKeyRoutes_1.default);
 // Middleware
 app.use(ErrorMiddleware_1.notFound);
 app.use(ErrorMiddleware_1.errorHandler);
