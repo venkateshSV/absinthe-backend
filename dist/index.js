@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
-// import connectDB from "./config/db";
+const db_1 = __importDefault(require("./config/db"));
 const ErrorMiddleware_1 = require("./middlewares/ErrorMiddleware");
 const HelloRoutes_1 = __importDefault(require("./routes/HelloRoutes"));
 const app = (0, express_1.default)();
 dotenv_1.default.config();
-// connectDB();
+(0, db_1.default)();
 app.use(express_1.default.json());
 // Enable CORS for all routes
 app.use((0, cors_1.default)({
