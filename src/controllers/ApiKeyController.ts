@@ -22,7 +22,7 @@ export const createApiKey = asyncHandler(
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error });
+      res.status(500).json({ success: false, error: error });
     }
   }
 );
@@ -35,12 +35,12 @@ export const createProjectUsingApiKey = asyncHandler(
     try {
       const apiKey = req.body.apiKey;
       if (!apiKey) {
-        res.status(400).json({ error: "API Key not entered" });
+        res.status(400).json({ success: false, error: "API Key not entered" });
         return;
       }
       const result: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
       if (!result.id) {
-        res.status(404).json({ error: "API Key not found" });
+        res.status(404).json({ success: false, error: "API Key not found" });
         return;
       }
       const uuid = uuidv4();
@@ -59,7 +59,7 @@ export const createProjectUsingApiKey = asyncHandler(
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error });
+      res.status(500).json({ success: false, error: error });
     }
   }
 );
@@ -72,12 +72,12 @@ export const getProjectsUsingApiKey = asyncHandler(
     try {
       const apiKey = req.params.apiKey;
       if (apiKey === ":apiKey") {
-        res.status(400).json({ error: "API Key not entered" });
+        res.status(400).json({ success: false, error: "API Key not entered" });
         return;
       }
       const keyResult: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
       if (!keyResult.id) {
-        res.status(404).json({ error: "API Key not found" });
+        res.status(404).json({ success: false, error: "API Key not found" });
         return;
       }
       const result =
@@ -93,7 +93,7 @@ export const getProjectsUsingApiKey = asyncHandler(
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error });
+      res.status(500).json({ success: false, error: error });
     }
   }
 );

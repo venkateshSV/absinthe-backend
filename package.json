@@ -1,7 +1,7 @@
 {
-  "name": "wordle-backend",
+  "name": "absinthe-backend",
   "version": "1.0.0",
-  "description": "TypeScript Rest API with Express.js, JWT, MongoDB",
+  "description": "TypeScript Rest API with Express.js, Postgres",
   "main": "server.ts",
   "scripts": {
     "start": "nodemon src/index.ts",

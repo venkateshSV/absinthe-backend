@@ -13,3 +13,8 @@ export type pointsdataResponse = {
   points: Number;
   created_at: String;
 };
+
+export type checkWalletResponse = {
+  valid: boolean;
+  wallet_address?: string;
+};

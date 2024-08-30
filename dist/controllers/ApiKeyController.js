@@ -31,7 +31,7 @@ exports.createApiKey = (0, express_async_handler_1.default)((req, res) => __awai
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ error: error });
+        res.status(500).json({ success: false, error: error });
     }
 }));
 // @Desc Create an Project using given API Key
@@ -41,12 +41,12 @@ exports.createProjectUsingApiKey = (0, express_async_handler_1.default)((req, re
     try {
         const apiKey = req.body.apiKey;
         if (!apiKey) {
-            res.status(400).json({ error: "API Key not entered" });
+            res.status(400).json({ success: false, error: "API Key not entered" });
             return;
         }
         const result = yield (0, utils_1.checkApiKey)(apiKey);
         if (!result.id) {
-            res.status(404).json({ error: "API Key not found" });
+            res.status(404).json({ success: false, error: "API Key not found" });
             return;
         }
         const uuid = uuidv4();
@@ -67,7 +67,7 @@ exports.createProjectUsingApiKey = (0, express_async_handler_1.default)((req, re
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ error: error });
+        res.status(500).json({ success: false, error: error });
     }
 }));
 // @Desc Get all Projects using given API Key
@@ -77,12 +77,12 @@ exports.getProjectsUsingApiKey = (0, express_async_handler_1.default)((req, res)
     try {
         const apiKey = req.params.apiKey;
         if (apiKey === ":apiKey") {
-            res.status(400).json({ error: "API Key not entered" });
+            res.status(400).json({ success: false, error: "API Key not entered" });
             return;
         }
         const keyResult = yield (0, utils_1.checkApiKey)(apiKey);
         if (!keyResult.id) {
-            res.status(404).json({ error: "API Key not found" });
+            res.status(404).json({ success: false, error: "API Key not found" });
             return;
         }
         const result = yield (0, postgres_1.sql) `SELECT project_id FROM api_keys WHERE api_key = ${apiKey}`;
@@ -98,7 +98,7 @@ exports.getProjectsUsingApiKey = (0, express_async_handler_1.default)((req, res)
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ error: error });
+        res.status(500).json({ success: false, error: error });
     }
 }));
 //# sourceMappingURL=ApiKeyController.js.map

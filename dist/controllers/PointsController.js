@@ -16,7 +16,6 @@ exports.getPointsDataUsingWalletAddressEventName = exports.getPointsDataUsingWal
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const utils_1 = require("../utils/utils");
 const postgres_1 = require("@vercel/postgres");
-const ethers_1 = require("ethers");
 // @Desc Distribute Points
 // @Route /api/points/distribute
 // @Method POST
@@ -29,18 +28,24 @@ exports.distributePoints = (0, express_async_handler_1.default)((req, res) => __
         const points = req.body.points;
         if (!apiKey || !projectId || !walletAddress || !eventName || !points) {
             res.status(404).json({
+                success: false,
                 error: `${!apiKey ? "API Key, " : ""}${!projectId ? "Project Id" : ""}${!walletAddress ? "Wallet Address, " : ""}${!eventName ? "Event Name, " : ""}${!points ? "Points, " : ""} Not entered`,
             });
             return;
         }
-        if (!ethers_1.ethers.utils.isAddress(walletAddress)) {
-            res.status(400).json({ error: "Invalid Wallet Address" });
+        if (!(0, utils_1.checkWallet)(walletAddress).valid) {
+            res
+                .status(400)
+                .json({ success: false, error: "Invalid Wallet Address" });
             return;
         }
-        walletAddress = ethers_1.ethers.utils.getAddress(walletAddress);
+        walletAddress = (0, utils_1.checkWallet)(walletAddress).wallet_address;
         const keyAndProjectResult = yield (0, utils_1.checkProjectId)(apiKey, projectId);
         if (!keyAndProjectResult.id) {
-            res.status(400).json({ error: "API Key & Project Id does not match" });
+            res.status(400).json({
+                success: false,
+                error: "API Key & Project Id does not match",
+            });
             return;
         }
         const result = yield (0, postgres_1.sql) `INSERT INTO pointsdata(project_id,event_name,wallet_address,points) VALUES(${projectId},${eventName},${walletAddress},${points}) RETURNING * `;
@@ -51,7 +56,7 @@ exports.distributePoints = (0, express_async_handler_1.default)((req, res) => __
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ error: error });
+        res.status(500).json({ success: false, error: error });
     }
 }));
 // @Desc Get all Points using given Project Id
@@ -62,16 +67,21 @@ exports.getPointsDataUsingProjectId = (0, express_async_handler_1.default)((req,
         const apiKey = req.params.apiKey;
         const projectId = req.params.projectId;
         if (apiKey === ":apiKey") {
-            res.status(404).json({ error: "API Key not entered" });
+            res.status(404).json({ success: false, error: "API Key not entered" });
             return;
         }
         if (projectId === ":projectId") {
-            res.status(404).json({ error: "Project Id not entered" });
+            res
+                .status(404)
+                .json({ success: false, error: "Project Id not entered" });
             return;
         }
         const keyAndProjectResult = yield (0, utils_1.checkProjectId)(apiKey, projectId);
         if (!keyAndProjectResult.id) {
-            res.status(400).json({ error: "API Key & Project Id does not match" });
+            res.status(400).json({
+                success: false,
+                error: "API Key & Project Id does not match",
+            });
             return;
         }
         const result = yield (0, postgres_1.sql) `SELECT * FROM pointsdata WHERE project_id = ${projectId}`;
@@ -86,7 +96,7 @@ exports.getPointsDataUsingProjectId = (0, express_async_handler_1.default)((req,
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ error: error });
+        res.status(500).json({ success: false, error: error });
     }
 }));
 // @Desc Get all Points using given Project Id and WalletAddress
@@ -96,22 +106,36 @@ exports.getPointsDataUsingWalletAddress = (0, express_async_handler_1.default)((
     try {
         const apiKey = req.params.apiKey;
         const projectId = req.params.projectId;
-        const walletAddress = req.params.walletAddress;
+        let walletAddress = req.params.walletAddress;
         if (apiKey === ":apiKey") {
-            res.status(404).json({ error: "API Key not entered" });
+            res.status(404).json({ success: false, error: "API Key not entered" });
             return;
         }
         if (projectId === ":projectId") {
-            res.status(404).json({ error: "Project Id not entered" });
+            res
+                .status(404)
+                .json({ success: false, error: "Project Id not entered" });
             return;
         }
         if (walletAddress === ":walletAddress") {
-            res.status(404).json({ error: "Wallet Address not entered" });
+            res
+                .status(404)
+                .json({ success: false, error: "Wallet Address not entered" });
             return;
         }
+        if (!(0, utils_1.checkWallet)(walletAddress).valid) {
+            res
+                .status(400)
+                .json({ success: false, error: "Invalid Wallet Address" });
+            return;
+        }
+        walletAddress = (0, utils_1.checkWallet)(walletAddress).wallet_address;
         const keyAndProjectResult = yield (0, utils_1.checkProjectId)(apiKey, projectId);
         if (!keyAndProjectResult.id) {
-            res.status(400).json({ error: "API Key & Project Id does not match" });
+            res.status(400).json({
+                success: false,
+                error: "API Key & Project Id does not match",
+            });
             return;
         }
         const result = yield (0, postgres_1.sql) `SELECT * FROM pointsdata WHERE project_id = ${projectId} AND wallet_address = ${walletAddress}`;
@@ -129,7 +153,7 @@ exports.getPointsDataUsingWalletAddress = (0, express_async_handler_1.default)((
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ error: error });
+        res.status(500).json({ success: false, error: error });
     }
 }));
 // @Desc Get all Points using given Project Id and WalletAddress
@@ -139,7 +163,7 @@ exports.getPointsDataUsingWalletAddressEventName = (0, express_async_handler_1.d
     try {
         const apiKey = req.params.apiKey;
         const projectId = req.params.projectId;
-        const walletAddress = req.params.walletAddress;
+        let walletAddress = req.params.walletAddress;
         const eventName = req.params.eventName;
         if (apiKey === ":apiKey") {
             res.status(404).json({ error: "API Key not entered" });
@@ -157,6 +181,13 @@ exports.getPointsDataUsingWalletAddressEventName = (0, express_async_handler_1.d
             res.status(404).json({ error: "Event Name not entered" });
             return;
         }
+        if (!(0, utils_1.checkWallet)(walletAddress).valid) {
+            res
+                .status(400)
+                .json({ success: false, error: "Invalid Wallet Address" });
+            return;
+        }
+        walletAddress = (0, utils_1.checkWallet)(walletAddress).wallet_address;
         const keyAndProjectResult = yield (0, utils_1.checkProjectId)(apiKey, projectId);
         if (!keyAndProjectResult.id) {
             res.status(400).json({ error: "API Key & Project Id does not match" });

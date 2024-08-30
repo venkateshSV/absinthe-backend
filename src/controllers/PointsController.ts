@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import { checkApiKey, checkProjectId } from "../utils/utils";
+import { checkProjectId, checkWallet } from "../utils/utils";
 import { sql } from "@vercel/postgres";
 import { checkApiKeyProjectIdResponse, pointsdataResponse } from "types";
 import { ethers } from "ethers";
@@ -20,6 +20,7 @@ export const distributePoints = asyncHandler(
 
       if (!apiKey || !projectId || !walletAddress || !eventName || !points) {
         res.status(404).json({
+          success: false,
           error: `${!apiKey ? "API Key, " : ""}${
             !projectId ? "Project Id" : ""
           }${!walletAddress ? "Wallet Address, " : ""}${
@@ -28,15 +29,20 @@ export const distributePoints = asyncHandler(
         });
         return;
       }
-      if (!ethers.utils.isAddress(walletAddress)) {
-        res.status(400).json({ error: "Invalid Wallet Address" });
+      if (!checkWallet(walletAddress).valid) {
+        res
+          .status(400)
+          .json({ success: false, error: "Invalid Wallet Address" });
         return;
       }
-      walletAddress = ethers.utils.getAddress(walletAddress);
+      walletAddress = checkWallet(walletAddress).wallet_address;
       const keyAndProjectResult: checkApiKeyProjectIdResponse =
         await checkProjectId(apiKey, projectId);
       if (!keyAndProjectResult.id) {
-        res.status(400).json({ error: "API Key & Project Id does not match" });
+        res.status(400).json({
+          success: false,
+          error: "API Key & Project Id does not match",
+        });
         return;
       }
       const result =
@@ -47,7 +53,7 @@ export const distributePoints = asyncHandler(
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error });
+      res.status(500).json({ success: false, error: error });
     }
   }
 );
@@ -62,17 +68,22 @@ export const getPointsDataUsingProjectId = asyncHandler(
       const projectId = req.params.projectId;
 
       if (apiKey === ":apiKey") {
-        res.status(404).json({ error: "API Key not entered" });
+        res.status(404).json({ success: false, error: "API Key not entered" });
         return;
       }
       if (projectId === ":projectId") {
-        res.status(404).json({ error: "Project Id not entered" });
+        res
+          .status(404)
+          .json({ success: false, error: "Project Id not entered" });
         return;
       }
       const keyAndProjectResult: checkApiKeyProjectIdResponse =
         await checkProjectId(apiKey, projectId);
       if (!keyAndProjectResult.id) {
-        res.status(400).json({ error: "API Key & Project Id does not match" });
+        res.status(400).json({
+          success: false,
+          error: "API Key & Project Id does not match",
+        });
         return;
       }
       const result =
@@ -87,7 +98,7 @@ export const getPointsDataUsingProjectId = asyncHandler(
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error });
+      res.status(500).json({ success: false, error: error });
     }
   }
 );
@@ -100,23 +111,37 @@ export const getPointsDataUsingWalletAddress = asyncHandler(
     try {
       const apiKey = req.params.apiKey;
       const projectId = req.params.projectId;
-      const walletAddress = req.params.walletAddress;
+      let walletAddress = req.params.walletAddress;
       if (apiKey === ":apiKey") {
-        res.status(404).json({ error: "API Key not entered" });
+        res.status(404).json({ success: false, error: "API Key not entered" });
         return;
       }
       if (projectId === ":projectId") {
-        res.status(404).json({ error: "Project Id not entered" });
+        res
+          .status(404)
+          .json({ success: false, error: "Project Id not entered" });
         return;
       }
       if (walletAddress === ":walletAddress") {
-        res.status(404).json({ error: "Wallet Address not entered" });
+        res
+          .status(404)
+          .json({ success: false, error: "Wallet Address not entered" });
         return;
       }
+      if (!checkWallet(walletAddress).valid) {
+        res
+          .status(400)
+          .json({ success: false, error: "Invalid Wallet Address" });
+        return;
+      }
+      walletAddress = checkWallet(walletAddress).wallet_address;
       const keyAndProjectResult: checkApiKeyProjectIdResponse =
         await checkProjectId(apiKey, projectId);
       if (!keyAndProjectResult.id) {
-        res.status(400).json({ error: "API Key & Project Id does not match" });
+        res.status(400).json({
+          success: false,
+          error: "API Key & Project Id does not match",
+        });
         return;
       }
       const result =
@@ -135,7 +160,7 @@ export const getPointsDataUsingWalletAddress = asyncHandler(
       });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: error });
+      res.status(500).json({ success: false, error: error });
     }
   }
 );
@@ -148,7 +173,7 @@ export const getPointsDataUsingWalletAddressEventName = asyncHandler(
     try {
       const apiKey = req.params.apiKey;
       const projectId = req.params.projectId;
-      const walletAddress = req.params.walletAddress;
+      let walletAddress = req.params.walletAddress;
       const eventName = req.params.eventName;
       if (apiKey === ":apiKey") {
         res.status(404).json({ error: "API Key not entered" });
@@ -166,6 +191,13 @@ export const getPointsDataUsingWalletAddressEventName = asyncHandler(
         res.status(404).json({ error: "Event Name not entered" });
         return;
       }
+      if (!checkWallet(walletAddress).valid) {
+        res
+          .status(400)
+          .json({ success: false, error: "Invalid Wallet Address" });
+        return;
+      }
+      walletAddress = checkWallet(walletAddress).wallet_address;
       const keyAndProjectResult: checkApiKeyProjectIdResponse =
         await checkProjectId(apiKey, projectId);
       if (!keyAndProjectResult.id) {
