@@ -27,6 +27,30 @@ export const createApiKey = asyncHandler(
   }
 );
 
+// @Desc Check Valid API Key
+// @Route /api/api-key/valid
+// @Method POST
+export const validApiKey = asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const apiKey = req.body.apiKey;
+    if (!apiKey) {
+      res.status(400).json({ success: false, error: "API Key not entered" });
+      return;
+    }
+    const result: checkApiKeyProjectIdResponse = await checkApiKey(apiKey);
+    if (!result.id) {
+      res.status(404).json({ success: false, error: "API Key not found" });
+      return;
+    }
+    res.status(201).json({
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, error: error });
+  }
+});
+
 // @Desc Create an Project using given API Key
 // @Route /api/api-key/project/create
 // @Method POST

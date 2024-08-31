@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProjectsUsingApiKey = exports.createProjectUsingApiKey = exports.createApiKey = void 0;
+exports.getProjectsUsingApiKey = exports.createProjectUsingApiKey = exports.validApiKey = exports.createApiKey = void 0;
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const utils_1 = require("../utils/utils");
 const { v4: uuidv4 } = require("uuid");
@@ -27,6 +27,30 @@ exports.createApiKey = (0, express_async_handler_1.default)((req, res) => __awai
         res.status(201).json({
             success: true,
             data: result.rows[0],
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, error: error });
+    }
+}));
+// @Desc Check Valid API Key
+// @Route /api/api-key/valid
+// @Method POST
+exports.validApiKey = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const apiKey = req.body.apiKey;
+        if (!apiKey) {
+            res.status(400).json({ success: false, error: "API Key not entered" });
+            return;
+        }
+        const result = yield (0, utils_1.checkApiKey)(apiKey);
+        if (!result.id) {
+            res.status(404).json({ success: false, error: "API Key not found" });
+            return;
+        }
+        res.status(201).json({
+            success: true,
         });
     }
     catch (error) {
